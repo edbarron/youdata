@@ -5,14 +5,25 @@ DB_PATH = os.path.expanduser("~/code_workspace/youdata/youdata.db")
 
 def insert_video(video_data):
     """
-    Inserts a video record into the database.
     video_data: Tuple (id, name, views, likes, comments, publication_date, publication_hour, description, thumbnail, channel, youtube_id)
+    Actualiza métricas si el video ya existe.
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
-    INSERT OR IGNORE INTO videos (id, name, views, likes, comments, publication_date, publication_hour, description, thumbnail, channel, youtube_id)
+    INSERT INTO videos (id, name, views, likes, comments, publication_date, publication_hour, description, thumbnail, channel, youtube_id)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+        name = COALESCE(excluded.name, videos.name),
+        views = excluded.views,
+        likes = excluded.likes,
+        comments = excluded.comments,
+        publication_date = COALESCE(excluded.publication_date, videos.publication_date),
+        publication_hour = COALESCE(excluded.publication_hour, videos.publication_hour),
+        description = COALESCE(excluded.description, videos.description),
+        thumbnail = COALESCE(excluded.thumbnail, videos.thumbnail),
+        channel = COALESCE(excluded.channel, videos.channel),
+        youtube_id = COALESCE(excluded.youtube_id, videos.youtube_id)
     ''', video_data)
     conn.commit()
     conn.close()
