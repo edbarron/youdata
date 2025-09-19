@@ -20,24 +20,29 @@ LATAM_SPANISH_STOPWORDS = set([
     "andan", "anda", "andamos", "andás", "andan", "así", "es", "entonces", "pues"
 ])
 
-def extract_keywords_from_titles(videos, min_freq=2):
+def extract_keywords_from_titles_over_views(videos, view_threshold=3000, min_freq=2):
     """
     Extracts trending keywords from video titles, filtering out stopwords and
     ignoring words that appear less than `min_freq` times.
     Returns all keywords sorted by frequency descending.
     """
-    all_words = []
+    words_all = []
 
-    for video in videos:
-        title = video[1].lower()
-        words = re.findall(r"\b[a-záéíóúñü]+\b", title)
-        words = [word for word in words if word not in LATAM_SPANISH_STOPWORDS]
-        all_words.extend(words)
+    for v in videos:
+        try:
+            views = int(v[2])  # index 2 = views según tu esquema
+        except (TypeError, ValueError):
+            continue
 
-    counter = Counter(all_words)
-    filtered = [(word, freq) for word, freq in counter.items() if freq >= min_freq]
+        if views > view_threshold:
+            title = (v[1] or "").lower()  # index 1 = name (título)
+            tokens = re.findall(r"\b[a-záéíóúñü]+\b", title)
+            tokens = [t for t in tokens if t not in LATAM_SPANISH_STOPWORDS]
+            words_all.extend(tokens)
+
+    counter = Counter(words_all)
+    filtered = [(w, f) for w, f in counter.items() if f >= min_freq]
     return sorted(filtered, key=lambda x: x[1], reverse=True)
-
 
 
 def select_time_frame():
@@ -136,37 +141,89 @@ def select_time_frame():
     print("Invalid choice. Please try again.")
     return  []
 
-def generate_table(data, columns, summary=False):
+def generate_table(
+    data,
+    columns,
+    summary=False,
+    period_label=None,
+    channel_name=None,
+    impact_view_threshold=3000,
+    top_n_keywords=100
+):
     """
     Generates a formatted table for display or reports.
     """
-    from tabulate import tabulate  # Optional library for pretty tables
-
-    
+    from tabulate import tabulate
 
     if summary:
-        gkeywords = extract_keywords_from_titles(data[:100])
-        gkeyword_line = ", ".join([f"{word} (\033[92m{freq}\033[0m)" for word, freq in gkeywords])
-        keywords = extract_keywords_from_titles(data[:5000])
-        keyword_line = ", ".join([f"{word} (\033[92m{freq}\033[0m)" for word, freq in keywords])
+        # --- NUEVA sección: High-Impact Keywords (> X views) ---
+        impact_keywords = extract_keywords_from_titles_over_views(
+            data, view_threshold=impact_view_threshold, min_freq=2
+        )
+        impact_line = ", ".join(
+            f"{w} (\033[92m{f}\033[0m)" for w, f in impact_keywords[:top_n_keywords]
+        )
+
         print(f"\n\033[93m***REPORT***\033[0m")
+        if period_label or channel_name:
+            print(f"\033[90mPeriod:\033[0m {period_label or 'N/A'}", end="")
+            if channel_name:
+                print(f"   \033[90mChannel:\033[0m {channel_name}")
+            else:
+                print()
+
         print(f"\n\033[91mTotal videos:\033[0m  {len(data)}")
-        print(f"\033[91mAverage Views:\033[0m  {sum(row[2] for row in data) / len(data):.2f}")
-        # Ensure likes are summed correctly
+        # Promedios
         try:
-            avg_likes = sum(row[3] for row in data if isinstance(row[3], (int, float))) / len(data)
+            avg_views = sum(int(row[2]) for row in data if isinstance(row[2], (int, float, str))) / max(len(data), 1)
+            print(f"\033[91mAverage Views:\033[0m  {avg_views:.2f}")
+        except Exception as e:
+            print(f"Error calculating average views: {e}")
+
+        try:
+            avg_likes = sum(int(row[3]) for row in data if str(row[3]).isdigit()) / max(len(data), 1)
             print(f"\033[91mAverage Likes:\033[0m  {avg_likes:.2f}")
-        except (ValueError, ZeroDivisionError) as e:
+        except Exception as e:
             print(f"Error calculating average likes: {e}")
-        print(f"\n\033[96m⭐ Golden Keywords:\033[0m {gkeyword_line}")
-        print(f"\n\033[96m📈 Trending Keywords:\033[0m {keyword_line}")
+
+        # Línea clave que pediste
+        print(f"\n\033[96m🔥 High-Impact Keywords (>{impact_view_threshold} views):\033[0m {impact_line or '—'}")
 
 
-    # Sort the data by views in descending order (assuming column 2 contains views)
-    data = sorted(data, key=lambda x: x[2], reverse=True)
+    # Orden por views desc y render de tabla
+    def _safe_views(x):
+        try: return int(x[2])
+        except: return -1
+    data = sorted(data, key=_safe_views, reverse=True)
 
-    # Extract and print the requested columns in a tabular format
     table = [tuple(row[i] for i in columns) for row in data]
-    print(tabulate(table, headers=["\033[94mDate", "Title", "Views\033[0m"], tablefmt="pretty"))
+    print(tabulate(table, headers=["\033[94mDate", "Title", "Views\033[0m"], tablefmt="pretty",stralign="left",))
     input("\nPress Enter to return to the main menu...")
     
+def make_period_label(dates):
+    if not dates:
+        return "—"
+
+    sorted_dates = sorted(set(dates))
+    if len(sorted_dates) == 1:
+        return sorted_dates[0]
+
+    start_s = sorted_dates[0]
+    end_s = sorted_dates[-1]
+    s = datetime.strptime(start_s, "%Y-%m-%d")
+    e = datetime.strptime(end_s, "%Y-%m-%d")
+
+    # ¿Mes completo?
+    first = s.replace(day=1)
+    next_month = (first + timedelta(days=32)).replace(day=1)
+    last = next_month - timedelta(days=1)
+    if s == first and e == last:
+        # Usa nombres en inglés por defecto; si quieres español, coloca locale.
+        return s.strftime("%B %Y")  # p.ej., "September 2025"
+
+    # ¿Año completo?
+    if s.month == 1 and s.day == 1 and e.month == 12 and e.day == 31 and s.year == e.year:
+        return str(s.year)
+
+    # Rango genérico
+    return f"{start_s} → {end_s}"

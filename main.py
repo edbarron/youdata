@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import sqlite3
 from pytz import timezone
-from utils import select_time_frame, generate_table, extract_keywords_from_titles, LATAM_SPANISH_STOPWORDS
+from utils import select_time_frame, generate_table, make_period_label, extract_keywords_from_titles_over_views, LATAM_SPANISH_STOPWORDS
 from db_utils import insert_video, delete_channel, fetch_videos_by_date, fetch_all_videos, insert_channel, fetch_all_channels, set_active_channel, fetch_active_channel
 import os
 from dotenv import load_dotenv
@@ -220,7 +220,7 @@ def display_today_top_videos():
     for idx, video in enumerate(ranked_videos[:10], start=1):
         print(f"{idx}. {video[1]} - \033[92m{video[2]} views\033[0m")  # video[1] is title, video[2] is views
     
-    keywords = extract_keywords_from_titles(ranked_videos[:10])
+    keywords = extract_keywords_from_titles_over_views(ranked_videos[:10])
     keyword_line = ", ".join([f"{word} ({freq})" for word, freq in keywords])
     print(f"\n\033[96mTrending Keywords: {keyword_line}\033[0m")
 
@@ -254,7 +254,7 @@ def display_day_before_top_videos():
     for idx, video in enumerate(ranked_videos[:10], start=1):
         print(f"{idx}. {video[1]} - \033[92m{video[2]} views\033[0m")  # video[1] is title, video[2] is views
     
-    keywords = extract_keywords_from_titles(ranked_videos[:10])
+    keywords = extract_keywords_from_titles_over_views(ranked_videos[:10])
     keyword_line = ", ".join([f"{word} ({freq})" for word, freq in keywords])
     print(f"\n\033[96mTrending Keywords: {keyword_line}\033[0m")
 
@@ -286,7 +286,7 @@ def display_day_before_yesterday_top_videos():
     print()
     for idx, video in enumerate(ranked_videos[:10], start=1):
         print(f"{idx}. {video[1]} - \033[92m{video[2]} views\033[0m")  # video[1] is title, video[2] is views
-    keywords = extract_keywords_from_titles(ranked_videos[:10])
+    keywords = extract_keywords_from_titles_over_views(ranked_videos[:10])
     keyword_line = ", ".join([f"{word} ({freq})" for word, freq in keywords])
     print(f"\n\033[96mTrending Keywords: {keyword_line}\033[0m")
 
@@ -335,7 +335,10 @@ def main():
                         all_videos.extend(videos)
 
                 if all_videos:
-                    generate_table(all_videos, columns=[5, 1, 2], summary=True)
+                    period_label = make_period_label(dates)
+                    channel_name = active_channel[2] if active_channel else None
+                    generate_table(all_videos, columns=[5, 1, 2], summary=True,
+                                period_label=period_label, channel_name=channel_name)
                 else:
                     print("No videos found for the selected dates.")
             else:
