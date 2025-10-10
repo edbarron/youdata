@@ -148,7 +148,7 @@ def generate_table(
     period_label=None,
     channel_name=None,
     impact_view_threshold=3000,
-    top_n_keywords=100
+    top_n_keywords=25
 ):
     """
     Generates a formatted table for display or reports.

@@ -114,10 +114,49 @@ def generate_report(date):
         file_name = f"top_videos_{date}.xlsx"
         df.to_excel(file_name, index=False)
         print(f"Report generated: {file_name}")
+        input("\nPress Enter to return to the main menu...")        
+
     else:
         print("No videos found in the database for the specified date.")
         input("\nPress Enter to return to the main menu...") 
-        
+
+def generate_report_combined(dates):
+    """
+    Genera un solo Excel con TODOS los videos de los días en 'dates'.
+    """
+    active_channel = fetch_active_channel()
+    if not active_channel:
+        print("No active channel. Please configure a channel.")
+        input("\nPress Enter to return to the main menu...")
+        return
+
+    youtube_id = active_channel[1]
+    columns = ["ID", "Title", "Views", "Likes", "Comments",
+               "Publication Date", "Publication Hour", "Description",
+               "Thumbnail", "Channel", "YouTube ID"]
+
+    frames = []
+    for d in dates:
+        vids = fetch_videos_by_date(d, youtube_id)
+        if not vids:
+            continue
+        df = pd.DataFrame(vids, columns=columns)
+        df["Query Date"] = d  # etiqueta opcional para saber de qué día vino
+        frames.append(df)
+
+    if not frames:
+        print("No videos found in the database for the specified dates.")
+        input("\nPress Enter to return to the main menu...")
+        return
+
+    combined = pd.concat(frames, ignore_index=True)
+    combined = combined.sort_values(by="Views", ascending=False)
+
+    start, end = min(dates), max(dates)
+    file_name = f"top_videos_{start}_to_{end}.xlsx"
+    combined.to_excel(file_name, index=False)
+    print(f"Report generated: {file_name}")
+    input("\nPress Enter to return to the main menu...")        
     
 
 
@@ -347,8 +386,10 @@ def main():
         elif choice == "3":
             dates = select_time_frame()
             if dates:
-                for date in dates:
-                    generate_report(date)
+                if len(dates) == 1:
+                    generate_report(dates[0])           # comportamiento actual (un día)
+                else:
+                    generate_report_combined(dates)     # nuevo: un solo Excel combinado
             else:
                 print("No valid dates selected.")
 
