@@ -1,0 +1,29 @@
+services:
+  youdata:
+    build: .
+    container_name: youdata-container
+
+    # Persistencia de la base (usa el archivo real del host)
+    volumes:
+      - ./youdata.db:/app/youdata.db
+      # (opcional para dev en vivo)
+      # - .:/app
+
+    # Si tu código acepta DB_PATH por env, sería:
+    # environment:
+    #   - DB_PATH=/app/youdata.db
+
+    env_file:
+      - .env
+
+    # Si tu app es CLI/menú:
+    stdin_open: true
+    tty: true
+
+    # Variables útiles
+    environment:
+      - TERM=xterm-256color
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+
+    command: python main.py

@@ -1,28 +1,66 @@
-# Byte-compiled / cache
+
+---
+
+### 📄 `.gitignore` (for YouData)
+
+```gitignore
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 
-# Test cache
-.pytest_cache/
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environment
+# Virtual environments
 venv/
-.env
+ENV/
+env/
+.venv
 
-# Environment files (keep secrets safe)
+# Environment variables (SECRETS – never commit)
 .env
-*.env
+.env.local
+.env.*.local
 
-# Databases
+# Database files (SQLite)
 *.db
+*.sqlite
 *.sqlite3
+
+# Exported Excel reports
+*.xlsx
+*.xls
 
 # Logs
 *.log
 
-# OS / IDE stuff
+# OS metadata
 .DS_Store
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Project specific
+*.tmp
+*.temp

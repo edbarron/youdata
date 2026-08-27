@@ -1,153 +1,139 @@
-# YouData - YouTube Data Analysis Tool
+# 📊 YouData – YouTube Data Analysis Tool (CLI)
 
-#### Video Demo: [https://youtu.be/4DCoBBTLvh8)
-
-## Description:
-
-**YouData** is a powerful tool designed to help users track and analyze YouTube video performance over time. It allows users to fetch video data from specific YouTube channels, store it in a database, and generate insightful reports based on views, likes, and comments. By leveraging the **YouTube Data API, SQLite** for storage, **and pandas** for data processing, YouData provides a structured and efficient way to monitor the growth and engagement of a channel.
-
-This project is particularly useful for content creators, analysts, or researchers who want to track video trends over a set period. Whether you want to analyze yesterday’s top-performing videos or generate a consolidated report for a month, **YouData** offers flexible querying and reporting options.
-
-Beyond analytics, **YouData has a strong economic value for content creators** who want to maximize their channel’s growth and monetization potential. One of the biggest challenges when starting a YouTube channel is knowing what topics resonate with audiences. Many new creators waste time producing content that fails to attract engagement, either because they focus on topics that don’t generate interest or because they lack effective **titling, thumbnail design, and content strategy.**
-
-**YouData solves this problem by providing key insights into successful content strategies used by leading channels within a niche**. By tracking multiple channels that a user considers successful, the program allows creators to study:
-
-- **Trending Topics**: Identify which subjects are currently generating the most views.
-- **Effective Titles**: Observe how top-performing videos are titled, helping creators understand the best phrasing, keyword placement, and emotional triggers that drive clicks.
-- **Thumbnail Design**: See the thumbnails of high-performing videos directly within an Excel report for further analysis.
-- **Engagement Metrics**: Compare videos based on likes, comments, and overall viewership to understand what kind of content generates more interaction.
-
-By providing data-driven insights, YouData helps users refine their content strategy, improve their video presentation, and maximize audience retention. Instead of guessing what might work, creators can study proven formulas for success by analyzing established channels in their niche.
-
-For users aiming to monetize their content, this tool offers a significant advantage. The ability to quickly identify trending topics and adopt high-impact strategies means faster audience growth, improved watch time, and better positioning for YouTube’s recommendation algorithm. This translates directly into higher revenue potential through advertising, sponsorships, and affiliate marketing.
-
-With YouData, content creators no longer have to experiment blindly. They can track the competition, adapt their strategies accordingly, and focus their efforts on what works—saving time and increasing their chances of rapid channel growth and financial success. Whether they are beginners looking to break into YouTube or experienced creators seeking to optimize their content, YouData provides the insights needed to stay ahead in an ever-evolving platform.
-
-## Features
-
-- **Download YouTube Video Data**: Fetch video details (title, views, likes, comments, publication date, etc.) from a specified channel and store them in a local SQLite database.
-- **Daily and Range-based Analysis**: View top-performing videos from a specific day or generate reports covering multiple days.
-- **Consolidated Reporting**: Export data into an **Excel (.xlsx) report**, sorted by views.
-- **Automated Timezone Handling**: Ensures correct timestamps by converting UTC publication time to **America/Phoenix (You will have to provide your own Timezone).**
-- **Channel Management**: Add, remove, and set an active YouTube channel for tracking.
-- **Data Persistence**: Store and retrieve video data efficiently using **SQLite**.
-
-## File Structure
-
-### `main.py` - Core Application Logic
-
-The main entry point for running the program. This script presents the menu and allows users to:
-
-- Download video data for a chosen timeframe.
-- Consult stored data by day or range.
-- Generate Excel reports.
-- Manage channel configurations.
-
-### `db_utils.py` - Database Handling
-
-This module contains all functions for interacting with the **SQLite database**:
-
-- `insert_video(video_data)`: Stores video information in the database.
-- `fetch_videos_by_date(publication_date, youtube_id)`: Retrieves videos published on a specific date.
-- `fetch_videos_by_range(start_date, end_date, youtube_id)`: Retrieves videos published within a date range.
-- `fetch_active_channel()`: Fetches the currently active channel.
-- `insert_channel(channel_data)`, `delete_channel(channel_id)`, etc., for managing channels.
-
-### `utils.py` - Utility Functions
-
-Provides helper functions:
-
-- `select_time_frame()`: Allows users to select a date range interactively.
-- `generate_table()`: Displays tabular reports inside the terminal.
-
-### `fetch_videos_by_range.py` - Batch Data Retrieval & Report Generation
-
-A script dedicated to fetching video data over a date range and exporting it as an Excel file.
-
-### `README.md` - Project Documentation
-
-This file explains how YouData works, its structure, and why certain design choices were made.
-
-## Design Decisions
-
-### Using SQLite for Local Storage
-
-Initially, CSV files were considered for storing data, but **SQLite** was chosen for its structure, indexing, and ability to perform efficient queries.
-
-### Using `fetch_videos_by_date()` and `fetch_videos_by_range()`
-
-Earlier versions of the program attempted to consolidate both single-day and multi-day queries under one function. However, splitting them into two separate functions provided greater clarity and flexibility.
-
-### Sorting by Views
-
-Videos in reports are **sorted in descending order by views** to highlight the most popular content first. This decision was based on the primary use case of **tracking engagement trends**.
-
-### Handling Timezones
-
-The **YouTube API** provides timestamps in UTC, but users needed local timestamps. This was solved by using `pytz` to convert timestamps to **America/Phoenix**, ensuring accurate elapsed time calculations.
-
-## How to Run the Project
-
-1. **Install Dependencies**:
-
-   ```
-   pip install google-api-python-client pandas sqlite3 pytz openpyxl
-   ```
-
-2. **Run the Application**:
-
-   ```
-   python3 main.py
-   ```
-
-3. **Follow the On-screen Menu**:
-
-   - **Download Video Data**: Choose a timeframe and fetch new data.
-   - **Consult Data**: Select a date or range to view video performance.
-   - **Generate Excel Reports**: Export top videos into an `.xlsx` file.
-   - **Configure Channels**: Add or set an active YouTube channel.
-
-## Future Improvements
-
-- **Automated Scheduling**: Run data collection at set intervals.
-- **Advanced Visualizations**: Use `matplotlib` for graphical insights.
-- **Trend Prediction**: Use **machine learning** to forecast future video performance.
--**table generation** it must be hable to retrieve many days in the same excel
-
-## Conclusion
-
-YouData is a **efficient, and user-friendly** tool for YouTube content tracking and analysis. By integrating **YouTube’s API, SQLite, pandas**, and **Excel reporting**, it enables users to analyze video performance effortlessly. 
-
-This project has been a valuable learning experience in **data engineering, API integration, and database design**. If you find it useful or have suggestions for improvement, feel free to contribute.
+A command‑line tool that fetches video statistics from any YouTube channel, stores them in a local SQLite database, and generates insightful reports (top videos, daily trends, Excel exports).  
+Designed for content creators, analysts, and researchers who want to track engagement, spot trending topics, and study successful content strategies.
 
 ---
 
-## License
+## ✨ Features
 
-MIT License
+- **Download video data** – Fetch titles, views, likes, comments, publication date, thumbnails, and descriptions for any channel over a custom date range (day, week, month, year).
+- **Local SQLite storage** – Efficiently store and query video data.
+- **Top videos dashboard** – Automatically shows the top 10 videos from today, yesterday, and the day before (ranked by views) with trending keywords.
+- **Flexible querying** – View top videos for any single date or a range of dates.
+- **Excel report generation** – Export top videos (up to 5,000) to a `.xlsx` file, either for a single day or a combined report for a date range.
+- **Channel management** – Add, delete, and switch between multiple YouTube channels.
+- **Timezone‑aware timestamps** – Convert UTC publication times to your local timezone (configurable).
+- **Keyword extraction** – Automatically extract trending keywords from video titles to identify popular topics.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+## 🛠️ Tech Stack
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+- Python 3.10+
+- Google YouTube Data API v3
+- SQLite (local database)
+- pandas (data manipulation and Excel export)
+- pytz (timezone handling)
+- python-dotenv (environment variables)
+- openpyxl (Excel writing)
 
 ---
 
-## Acknowledgments
+## 📦 Installation
 
-Youdata was developed as the final project for Harvard’s CS50 Python course, blending programming knowledge with practical problem-solving skills using python.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/edbarron/youdata.git
+   cd youdata
+   ```
 
-Special thanks to Professor David Malan, Harvard University and the entire CS50 staff for sharing their invaluable knowledge.
+2. **Create and activate a virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   ```
 
-If you have feedback, ideas, or simply want to connect, feel free to reach out:
-- **Name**: [Jesús Eduardo Barrón Aguilar]
-- **Email**: [xeduardo.barron@gmail.com]
-- **GitHub**: [https://github.com/Eduardbarron]
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-If you found this project useful and want to support future developments, please consider buying me coding fuel (aka coffee) at  
-[Buy Me a Coffee](https://www.buymeacoffee.com/Eduardbarron) (optional, but greatly appreciated!)
+4. **Set up environment variables**  
+   Create a `.env` file in the root directory:
+   ```env
+   YOUTUBE_API_KEY=your_youtube_api_key
+   ```
+   > You need a valid YouTube Data API v3 key. Get one from the [Google Cloud Console](https://console.cloud.google.com/).
 
-Thank you for exploring YouData. I hope it's useful to you.
+5. **Run the application**
+   ```bash
+   python main.py
+   ```
 
 ---
+
+## ⚙️ Configuration
+
+### Environment Variables (`.env`)
+
+| Variable | Description |
+| :--- | :--- |
+| `YOUTUBE_API_KEY` | Your YouTube Data API v3 key (required). |
+
+### Timezone
+
+Edit the `LOCAL_TIMEZONE` variable in `main.py` (line ~11) to match your local timezone. Default is `America/Phoenix`.
+
+```python
+LOCAL_TIMEZONE = timezone('America/Phoenix')   # change to your own
+```
+
+---
+
+## 📊 How It Works
+
+1. **Add a channel** – Use the channel configuration menu to add a YouTube channel (by its channel ID).
+2. **Set active channel** – Choose which channel you want to analyse.
+3. **Download data** – Select a time frame (today, yesterday, last week, custom range) and fetch video data from the API.
+4. **View top videos** – The main menu automatically shows today's, yesterday's, and the day‑before‑yesterday's top videos, with trending keyword summaries.
+5. **Generate reports** – Export video data to Excel for a single date or a combined range.
+6. **Repeat** – Download data for different ranges to build a historical database.
+
+---
+
+## 📁 File Structure
+
+```
+youdata/
+├── main.py                 # Main application logic and menu
+├── db_utils.py             # Database operations (insert, fetch, manage channels)
+├── utils.py                # Helper functions (time frame selection, table display, keyword extraction)
+├── fetch_videos_by_range.py# Batch data retrieval and combined Excel export
+├── .env                    # Environment variables (API key) – NOT tracked
+├── requirements.txt        # Python dependencies
+├── youdata.db              # SQLite database (auto‑created)
+├── top_videos_*.xlsx       # Exported Excel reports (auto‑generated)
+└── README.md               # This file
+```
+
+---
+
+## 🧪 Testing
+
+- Start with a small date range (e.g., "today") to verify the API connection.
+- Use the dashboard to confirm that videos are being stored and displayed.
+- Generate an Excel report to ensure the export works.
+
+---
+
+## 🔮 Future Improvements
+
+- Automated scheduling for regular data collection.
+- Graphical visualisations (e.g., `matplotlib`).
+- Trend prediction using machine learning.
+- Export multiple days in a single Excel file (already implemented in `generate_report_combined()`).
+- Support for multiple timezones per user.
+
+---
+
+## 📄 License
+
+MIT – free to use, modify, and distribute.
+
+---
+
+## 🙏 Acknowledgements
+
+Developed as the final project for Harvard’s CS50 Python course.  
+Special thanks to Professor David Malan and the CS50 staff.

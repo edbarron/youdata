@@ -1,0 +1,22 @@
+# VCS
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Entorno / secretos
+.env
+*.env
+
+# Artefactos / OS
+.DS_Store
+Thumbs.db
+
+# Datos / logs
+youdata.db
+data/
+logs/
